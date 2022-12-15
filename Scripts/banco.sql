@@ -1,9 +1,3 @@
--- MySQL Workbench Forward Engineering
-
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
-
 -- -----------------------------------------------------
 -- Schema sgh
 -- -----------------------------------------------------
@@ -42,7 +36,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`hotel` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`hotel` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `reg_imobiliario_id` VARCHAR(60) NOT NULL,
   `nome` VARCHAR(60) NOT NULL,
   `descricao` TEXT NOT NULL,
@@ -115,10 +109,10 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`estoque` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`estoque` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `hotel_id` INT NOT NULL,
   `nome` VARCHAR(60) NOT NULL,
-  `quantidade` VARCHAR(45) NOT NULL,
+  `quantidade` INT NOT NULL,
   `tipo_alimento` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_estoque_hotel`
@@ -135,7 +129,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`piscina` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`piscina` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `hotel_id` INT NOT NULL,
   `tipo` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`),
@@ -153,7 +147,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`garagem` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`garagem` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `hotel_id` INT NOT NULL,
   `preco_diario` DECIMAL(10,2) NOT NULL,
   `capacidade` INT NOT NULL,
@@ -173,7 +167,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`armario` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`armario` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `hotel_id` VARCHAR(45) NOT NULL,
   `preco_diario` DECIMAL(10,2) NOT NULL,
   `status` VARCHAR(45) NOT NULL,
@@ -249,7 +243,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`aluguel` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`aluguel` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `estabelecimento_cnpj` VARCHAR(18) NOT NULL,
   `valor_base` DECIMAL(10,2) NOT NULL,
   `valor_juros` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
@@ -262,6 +256,24 @@ CREATE TABLE IF NOT EXISTS `sgh`.`aluguel` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+
+-- -----------------------------------------------------
+-- Table `sgh`.`hospede`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `sgh`.`hospede` ;
+
+CREATE TABLE IF NOT EXISTS `sgh`.`hospede` (
+  `cpf` VARCHAR(14) NOT NULL,
+  `nome` VARCHAR(45) NOT NULL,
+  `sobrenome` VARCHAR(90) NOT NULL,
+  `email` VARCHAR(90) NOT NULL,
+  `data_nascimento` DATE NOT NULL,
+  `sexo` ENUM('M', 'F', 'Outro') NOT NULL,
+  `pontos` INT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`cpf`))
+ENGINE = InnoDB;
+
+
 -- -----------------------------------------------------
 -- Table `sgh`.`requisicao`
 -- -----------------------------------------------------
@@ -270,6 +282,7 @@ DROP TABLE IF EXISTS `sgh`.`requisicao` ;
 CREATE TABLE IF NOT EXISTS `sgh`.`requisicao` (
   `id` VARCHAR(48) NOT NULL,
   `funcionario_cpf` VARCHAR(14) NOT NULL,
+  `hospede_cpf` VARCHAR(14) NOT NULL,
   `status` VARCHAR(45) NOT NULL,
   `tipo` VARCHAR(45) NOT NULL,
   `texto` TEXT NOT NULL,
@@ -279,6 +292,11 @@ CREATE TABLE IF NOT EXISTS `sgh`.`requisicao` (
   CONSTRAINT `fk_requisicao_funcionario`
     FOREIGN KEY (`funcionario_cpf`)
     REFERENCES `sgh`.`funcionario` (`cpf`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_requisicao_hospede`
+    FOREIGN KEY (`hospede_cpf`)
+    REFERENCES `sgh`.`hospede` (`cpf`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -290,7 +308,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`quarto` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`quarto` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `hotel_id` INT NOT NULL,
   `status` VARCHAR(45) NOT NULL,
   `preco` DECIMAL(10,2) NOT NULL,
@@ -348,29 +366,12 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `sgh`.`hospede`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `sgh`.`hospede` ;
-
-CREATE TABLE IF NOT EXISTS `sgh`.`hospede` (
-  `cpf` VARCHAR(14) NOT NULL,
-  `nome` VARCHAR(45) NOT NULL,
-  `sobrenome` VARCHAR(90) NOT NULL,
-  `email` VARCHAR(90) NOT NULL,
-  `data_nascimento` DATE NOT NULL,
-  `sexo` ENUM('M', 'F', 'Outro') NOT NULL,
-  `pontos` INT NOT NULL DEFAULT 0,
-  PRIMARY KEY (`cpf`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `sgh`.`reserva`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `sgh`.`reserva` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`reserva` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `quarto_id` INT NOT NULL,
   `hospede_cpf` VARCHAR(14) NOT NULL,
   `data_checkin` DATETIME NOT NULL,
@@ -477,7 +478,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`servicos_quarto` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`servicos_quarto` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `reserva_id` INT NOT NULL,
   `nome` VARCHAR(45) NOT NULL,
   `preco` DECIMAL(10,2) NOT NULL,
@@ -542,13 +543,13 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`servico` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`servico` (
-  `id` INT NOT NULL,
-  `terceirizado_id` VARCHAR(18) NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `terceirizado_cnpj` VARCHAR(18) NOT NULL,
   `movimentacao_id` VARCHAR(48) NOT NULL,
   `descricao` TEXT NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_servico_terceirizado`
-    FOREIGN KEY (`terceirizado_id`)
+    FOREIGN KEY (`terceirizado_cnpj`)
     REFERENCES `sgh`.`terceirizado` (`cnpj`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
@@ -566,7 +567,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`beneficio_comum` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`beneficio_comum` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `funcionario_cpf` VARCHAR(14) NOT NULL,
   `tipo` VARCHAR(45) NOT NULL,
   `descricao` TEXT NOT NULL,
@@ -585,7 +586,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`beneficio_assalariado` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`beneficio_assalariado` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `funcionario_cpf` VARCHAR(14) NOT NULL,
   `tipo` VARCHAR(45) NOT NULL,
   `valor` DECIMAL(10,2) NOT NULL,
@@ -628,7 +629,7 @@ CREATE TABLE IF NOT EXISTS `sgh`.`reserva_itens_frigobar` (
   `reserva_id` INT NOT NULL,
   `item_frigobar_id` INT NOT NULL,
   `quarto_id` INT NOT NULL,
-  `qunatidade` INT NOT NULL,
+  `quantidade` INT NOT NULL,
   CONSTRAINT `fk_frigobar_reserva`
     FOREIGN KEY (`item_frigobar_id`)
     REFERENCES `sgh`.`itens_frigobar` (`id`)
@@ -665,26 +666,6 @@ CREATE TABLE IF NOT EXISTS `sgh`.`reserva_piscina` (
     REFERENCES `sgh`.`piscina` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
-ENGINE = InnoDB;
-
--- -----------------------------------------------------
--- Table `sgh`.`requisicao_hospede`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `sgh`.`requisicao_hospede` ;
-
-CREATE TABLE IF NOT EXISTS `sgh`.`requisicao_hospede` (
-  `hospede_cpf` VARCHAR(14) NOT NULL,
-  `requisicao_id` VARCHAR(48) NOT NULL,
-  CONSTRAINT `fk_hospede_req`
-    FOREIGN KEY (`hospede_cpf`)
-    REFERENCES `sgh`.`hospede` (`cpf`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_req_hospede`
-    FOREIGN KEY (`requisicao_id`)
-    REFERENCES `sgh`.`requisicao` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -749,8 +730,3 @@ CREATE TABLE IF NOT EXISTS `sgh`.`movimentacao_pagamento` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
-
-
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

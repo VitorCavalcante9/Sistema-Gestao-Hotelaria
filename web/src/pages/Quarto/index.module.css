@@ -1,0 +1,67 @@
+.title {
+  margin-top: 5rem;
+  font: 700 3rem Roboto;
+  color: var(--color-background);
+}
+
+.listWrapper {
+  width: 100%;
+  max-height: 70rem;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.formWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 3rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 2rem 4rem;
+}
+
+.inputsWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.divisor {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.sectionTitle {
+  width: 100%;
+  font: 700 2rem Roboto;
+  color: var(--color-background);
+  text-align: center;
+}
+
+.row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.amenidades {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}

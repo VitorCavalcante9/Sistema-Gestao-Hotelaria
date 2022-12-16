@@ -3,7 +3,9 @@ import { Request, Response } from 'express';
 import { appDataSource } from '../database';
 
 import { Hotel } from '../models/Hotel';
+import { Piscina } from '../models/Piscina';
 import { RegistroImobiliario } from '../models/RegistroImobiliario';
+import { Setores } from '../models/Setores';
 
 class HotelController {
   async store(req: Request, res: Response) {
@@ -73,30 +75,105 @@ class HotelController {
       relations: ['setores', 'quartos', 'piscinas', 'registro_imobiliario'],
     });
 
-    return res.status(302).json(hoteis);
+    return res.json(hoteis);
   }
 
   async update(req: Request, res: Response) {
-    const { nome, descricao, categoria, reg_imobiliario_id } = req.body;
+    const {
+      nome,
+      descricao: desc_hotel,
+      categoria,
+      reg_imobiliario: {
+        num_registro,
+        metragem,
+        descricao,
+        logradouro,
+        numero,
+        cep,
+        bairro,
+        cidade,
+        estado,
+        latitude,
+        longitude,
+      },
+      setores,
+      piscinas,
+    } = req.body;
 
     const { id } = req.params;
 
     const hotelRepository = appDataSource.getRepository(Hotel);
+    const setoresRepository = appDataSource.getRepository(Setores);
+    const piscinaRepository = appDataSource.getRepository(Piscina);
+    const regImobiliarioRepository =
+      appDataSource.getRepository(RegistroImobiliario);
 
     try {
+      let regImobiliario = await regImobiliarioRepository.findOneBy({
+        num_registro,
+      });
+
+      if (!regImobiliario) {
+        regImobiliario = regImobiliarioRepository.create({
+          num_registro,
+          metragem,
+          descricao,
+          logradouro,
+          numero,
+          cep,
+          bairro,
+          cidade,
+          estado,
+          latitude,
+          longitude,
+        });
+      } else {
+        regImobiliarioRepository.save({
+          num_registro,
+          metragem,
+          descricao,
+          logradouro,
+          numero,
+          cep,
+          bairro,
+          cidade,
+          estado,
+          latitude,
+          longitude,
+        });
+      }
+
       const hotel = await hotelRepository.findOneBy({
         id: Number(id),
       });
 
+      await setoresRepository.delete({
+        hotel_id: hotel.id,
+      });
+
+      await piscinaRepository.delete({
+        hotel_id: hotel.id,
+      });
+
+      let newSetores = [];
+
+      for (const setor of setores) {
+        newSetores.push({
+          hotel_id: hotel.id,
+          setor: setor.setor,
+        });
+      }
+
       const newHotel = {
         ...hotel,
         nome,
-        descricao,
+        descricao: desc_hotel,
         categoria,
-        reg_imobiliario_id: reg_imobiliario_id ?? hotel.reg_imobiliario_id,
+        setores: newSetores,
+        piscinas,
       };
 
-      await hotelRepository.update({ id: Number(id) }, newHotel);
+      await hotelRepository.save(newHotel);
 
       return res.json(newHotel);
     } catch (error) {

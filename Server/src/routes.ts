@@ -13,8 +13,8 @@ router.get('/regImobiliario', RegImobiliarioController.index);
 // Hotel
 router.post('/hotel', HotelController.store);
 router.get('/hotel', HotelController.index);
-router.put('/hotel', HotelController.update);
-router.delete('/hotel', HotelController.delete);
+router.put('/hotel/:id', HotelController.update);
+router.delete('/hotel/:id', HotelController.delete);
 
 // Reserva
 router.post('/reserva', ReservaController.store);

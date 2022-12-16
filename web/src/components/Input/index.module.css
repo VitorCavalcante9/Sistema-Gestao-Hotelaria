@@ -1,0 +1,21 @@
+.inputContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.titleInput {
+  font: 400 1.75rem Roboto;
+}
+
+.input {
+  margin-top: 0.5rem;
+  width: 100%;
+  height: 4.5rem;
+  border-radius: 1rem;
+  border: 2px solid var(--color-button);
+  outline: 0;
+  padding: 0.5rem 0.75rem;
+  font: 400 1.6rem Roboto;
+}

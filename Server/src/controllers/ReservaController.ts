@@ -59,7 +59,7 @@ export class ReservaController {
     const reservaRepository = appDataSource.getRepository(Reserva);
     try {
       const reservas = await reservaRepository.find({
-        relations: ['piscinas'],
+        relations: ['piscinas', 'quarto', 'quarto.hotel'],
       });
 
       return res.status(200).json(reservas);

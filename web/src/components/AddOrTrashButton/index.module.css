@@ -1,0 +1,29 @@
+.buttonContainer {
+  margin-top: 0.5rem;
+  min-width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 1rem;
+  border: 0;
+  cursor: pointer;
+}
+
+.trashButton {
+  background: #8a2e31;
+}
+
+.trashButton:hover {
+  background: #993336;
+  transition: 0.2s;
+}
+
+.addButton {
+  border: 2px solid var(--color-button);
+  background: var(--color-primary);
+  color: var(--color-button);
+  font: 500 2rem Roboto;
+}
+
+.addButton:hover {
+  background: var(--color-text-button-hover);
+  transition: 0.2s;
+}

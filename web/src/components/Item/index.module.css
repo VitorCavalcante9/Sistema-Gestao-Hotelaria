@@ -1,0 +1,17 @@
+.wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+.title {
+  font: 700 1.8rem Roboto;
+}
+
+.text {
+  margin-left: 1rem;
+  font: 500 1.8rem Roboto;
+}
+
+.wrapper + .wrapper {
+  margin-top: 0.75rem;
+}

@@ -1,0 +1,34 @@
+.selectBlock {
+  margin-top: 2rem;
+  width: 50rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.selectBlock label {
+  font-size: 1.75rem;
+}
+
+.selectBlock select {
+  width: 100%;
+  height: 5.6rem;
+  margin-top: 0.8rem;
+  border-radius: 0.8rem;
+  background: var(--color-primary);
+  border: 2px solid var(--color-button);
+  outline: 0;
+  padding: 0 1.6rem;
+  font: 500 1.6rem Roboto;
+}
+
+/* .selectBlock:focus-within::after{
+  width: calc(100% - 3.2rem);
+  height: 2px;
+  content: '';
+  background: var(--color-text-button-hover);
+  position: absolute;
+  left: 1.6rem;
+  right: 1.6rem;
+  bottom: 0;
+} */

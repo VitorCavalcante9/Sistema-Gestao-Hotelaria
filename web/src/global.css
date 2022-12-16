@@ -1,0 +1,42 @@
+:root {
+  font-size: 60%;
+
+  --color-background: #003580;
+  --color-primary: #fff;
+  --color-secondary: #febb02;
+  --color-button: #0071c2;
+  --color-button-hover: #00487a;
+  --color-text-title: #c4c4c4;
+  --color-text-primary: #000;
+  --color-text-secondary: #6b6b6b;
+  --color-text-button: #f2f8fc;
+  --color-text-button-hover: #f0f7fb;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100vh;
+}
+
+body {
+  background: var(--color-background);
+  font: 400 1.6rem Roboto;
+  color: var(--color-text-primary);
+}
+
+a {
+  width: 100%;
+}
+
+@media (min-width: 700px) {
+  :root {
+    font-size: 62.5%;
+  }
+}

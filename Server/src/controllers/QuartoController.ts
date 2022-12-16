@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import { appDataSource } from '../database';
+import { Amenidade } from '../models/Amenidade';
 
 import { Quarto } from '../models/Quarto';
 
@@ -25,10 +26,10 @@ class QuartoController {
     const quartoRepository = appDataSource.getRepository(Quarto);
 
     const quartos = await quartoRepository.find({
-      relations: ['amenidades'],
+      relations: ['amenidades', 'hotel'],
     });
 
-    return res.status(302).json(quartos);
+    return res.json(quartos);
   }
 
   async update(req: Request, res: Response) {
@@ -36,6 +37,7 @@ class QuartoController {
     const { id } = req.params;
 
     const quartoRepository = appDataSource.getRepository(Quarto);
+    const amenidadesRepository = appDataSource.getRepository(Amenidade);
 
     try {
       const quarto = await quartoRepository.findOneBy({
@@ -44,12 +46,16 @@ class QuartoController {
 
       delete data.hotel_id;
 
+      await amenidadesRepository.delete({
+        quarto_id: quarto.id,
+      });
+
       const newQuarto = {
         ...quarto,
-        data,
+        ...data,
       };
 
-      await quartoRepository.update({ id: Number(id) }, newQuarto);
+      await quartoRepository.save(newQuarto);
 
       return res.json(newQuarto);
     } catch (err) {

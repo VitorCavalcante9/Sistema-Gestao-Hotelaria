@@ -1,0 +1,30 @@
+.button {
+  width: 100%;
+  padding: 2rem 0;
+  border-radius: 1.5rem;
+
+  font: 700 2rem Roboto;
+  cursor: pointer;
+}
+
+.buttonWhite {
+  border: 2px solid var(--color-button);
+  background: var(--color-primary);
+  color: var(--color-button);
+}
+
+.buttonWhite:hover {
+  background: var(--color-text-button-hover);
+  transition: 0.2s;
+}
+
+.buttonBlue {
+  border: 2px solid var(--color-secondary);
+  background: var(--color-button);
+  color: var(--color-text-button);
+}
+
+.buttonBlue:hover {
+  background: var(--color-button-hover);
+  transition: 0.2s;
+}

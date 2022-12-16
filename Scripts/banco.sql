@@ -9,6 +9,7 @@ DROP SCHEMA IF EXISTS `sgh` ;
 CREATE SCHEMA IF NOT EXISTS `sgh` DEFAULT CHARACTER SET utf8 ;
 USE `sgh` ;
 
+
 -- -----------------------------------------------------
 -- Table `sgh`.`registro_imobiliario`
 -- -----------------------------------------------------
@@ -388,7 +389,9 @@ CREATE TABLE IF NOT EXISTS `sgh`.`reserva` (
     FOREIGN KEY (`hospede_cpf`)
     REFERENCES `sgh`.`hospede` (`cpf`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION,
+  CONSTRAINT `valida_checkout` 
+	CHECK(`data_checkin` < `data_checkout`))
 ENGINE = InnoDB;
 
 
@@ -445,13 +448,13 @@ CREATE TABLE IF NOT EXISTS `sgh`.`reserva_garagem` (
   CONSTRAINT `fk_garagem_reserva`
     FOREIGN KEY (`reserva_id`)
     REFERENCES `sgh`.`reserva` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_garagem_id`
     FOREIGN KEY (`garagem_id`)
     REFERENCES `sgh`.`garagem` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -462,7 +465,7 @@ DROP TABLE IF EXISTS `sgh`.`dias_uso_garagem` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`dias_uso_garagem` (
   `token_garagem` VARCHAR(48) NOT NULL,
-  `dia` VARCHAR(45) NOT NULL,
+  `dia` DATE NOT NULL,
   PRIMARY KEY (`token_garagem`, `dia`),
   CONSTRAINT `fk_dia_garagem`
     FOREIGN KEY (`token_garagem`)
@@ -512,7 +515,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `sgh`.`historico_caixa` ;
 
 CREATE TABLE IF NOT EXISTS `sgh`.`historico_caixa` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `movimentacao_id` VARCHAR(48) NOT NULL,
   `valor_atual` DECIMAL(10,2) NOT NULL,
   PRIMARY KEY (`id`),
@@ -730,3 +733,74 @@ CREATE TABLE IF NOT EXISTS `sgh`.`movimentacao_pagamento` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
+
+-- -----------------------------------------------------
+-- Functions
+-- -----------------------------------------------------
+DELIMITER $$
+CREATE FUNCTION IsLessThenAYear(beginDate DATETIME)
+RETURNS boolean
+BEGIN
+	DECLARE Result boolean;
+    SET Result = beginDate < (curdate() + INTERVAL 1 YEAR);
+    RETURN Result;
+END$$
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE TRIGGER validar_checkin_checkout BEFORE INSERT
+ON `sgh`.`reserva`
+FOR EACH ROW
+BEGIN
+	IF (`sgh`.IsLessThenAYear(NEW.data_checkin) = 0) THEN
+		signal sqlstate '45000' set message_text = 'data_checkin deve ser antes de 1 ano';
+	END IF;
+	IF (`sgh`.IsLessThenAYear(NEW.data_checkout) = 0) THEN
+		signal sqlstate '45000' set message_text = 'data_checkout deve ser antes de 1 ano';
+	END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER validar_token_garagem BEFORE INSERT
+ON `sgh`.`dias_uso_garagem`
+FOR EACH ROW
+BEGIN
+    DECLARE r_id INT;
+	DECLARE r_data_checkout DATETIME;
+    SET r_id = (SELECT reserva_id FROM `reserva_garagem` WHERE `token` = NEW.token_garagem);
+    SET r_data_checkout = (SELECT data_checkout FROM `sgh`.`reserva` WHERE `reserva`.`id` = r_id);
+    IF (DATE(NEW.dia) > DATE(r_data_checkout)) THEN
+		signal sqlstate '45000' set message_text = 'token inválido';
+	END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER validar_token_armario BEFORE INSERT
+ON `sgh`.`dias_uso_armario`
+FOR EACH ROW
+BEGIN
+    DECLARE r_id INT;
+	DECLARE r_data_checkout DATETIME;
+    SET r_id = (SELECT reserva_id FROM `reserva_armario` WHERE `token` = NEW.token_armario);
+    SET r_data_checkout = (SELECT data_checkout FROM `sgh`.`reserva` WHERE `reserva`.`id` = r_id);
+    IF (DATE(NEW.dia) > DATE(r_data_checkout)) THEN
+		signal sqlstate '45000' set message_text = 'token inválido';
+	END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE TRIGGER registrar_historico_caixa AFTER INSERT
+ON `sgh`.`movimentacao`
+FOR EACH ROW
+BEGIN
+    DECLARE valor_entrada DECIMAL(10,2);
+    DECLARE valor_saida DECIMAL(10,2);
+    SET valor_entrada = (SELECT SUM(valor) FROM `movimentacao` WHERE tipo_movimentacao = 'E');
+    SET valor_saida = (SELECT SUM(valor) FROM `movimentacao` WHERE tipo_movimentacao = 'S');
+    INSERT INTO `sgh`.`historico_caixa` VALUES (DEFAULT, NEW.id, valor_entrada - valor_saida);
+END$$
+DELIMITER ;

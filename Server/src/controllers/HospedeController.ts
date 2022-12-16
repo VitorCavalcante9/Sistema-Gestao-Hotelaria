@@ -27,7 +27,7 @@ class HospedeController {
     try {
       const hospedes = await hospedeRepository.find();
 
-      return res.status(200).json(hospedes);
+      return res.json(hospedes);
     } catch (err) {
       throw new Error(err);
     }
